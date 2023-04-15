@@ -1,0 +1,41 @@
+*{
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+body{
+  background-color: rgb(9, 28, 56);
+}
+
+.app_wrap{
+  max-width: 400px;
+  padding: 10px;
+}
+
+button{
+  padding: 5px;
+}
+
+.task{
+  margin: 10px;
+  padding: 10px;
+  max-width: 360px;
+  background-color: #014036;
+  color: #fff;
+}
+
+.form{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: rgb(42, 83, 69);
+  padding: 10px;
+}
+
+.input_group{
+  margin:5px 0 ;
+}
+
+.input_group label{
+  color: #fff
+}
