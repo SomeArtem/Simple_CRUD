@@ -63,18 +63,22 @@ function EditCallback(task_id){
   inputDescriptionEl.value = chosenElement.querySelector(`[data-id="task_description"]`).innerText;
 
   inputChange.onclick=()=>{
-    let EditedTask = TaskArray.find(item => item.id == task_id);
-    let EditedIndex = TaskArray.indexOf(EditedTask);
-    // console.log('EditedTask',EditedTask);
-    
-    EditedTask.title=inputTitleEl.value;
-    EditedTask.description=inputDescriptionEl.value;
-
-    TaskArray[EditedIndex]=EditedTask;
-    localStorage.setItem('TaskArray', JSON.stringify(TaskArray));
-    //RenderAllTasks2(TaskArray);
-    reRenderTask(EditedIndex, EditedTask)
+    ConfirmationClick(task_id)
   }
+}
+
+function ConfirmationClick(id) {
+  let EditedTask = TaskArray.find(item => item.id == id);
+  let EditedIndex = TaskArray.indexOf(EditedTask);
+  // console.log('EditedTask',EditedTask, idd);
+  
+  EditedTask.title=inputTitleEl.value;
+  EditedTask.description=inputDescriptionEl.value;
+
+  TaskArray[EditedIndex]=EditedTask;
+  localStorage.setItem('TaskArray', JSON.stringify(TaskArray));
+  reRenderTask(EditedIndex, EditedTask);
+  inputChange.onclick=null;  
 }
 
 
