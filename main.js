@@ -9,7 +9,7 @@ const container = document.querySelector(`[data-id="${selector}"]`);
 let TaskArray=[];
 GetDataFromStorage();
 let TaskToRender;
-RenderAllTasks(TaskArray);
+RenderAllTasks2(TaskArray);
 
 
 
@@ -22,49 +22,58 @@ function GetDataFromStorage() {
   }    
 }
 
-function RenderAllTasks(Tasks) {
+function RenderAllTasks2(Tasks) {
   container.innerHTML='';
-  for (let i = 0; i < Tasks.length; i++) {
-    TaskToRender=new TaskComponent(Tasks[i].id,Tasks[i].title, Tasks[i].description, ClickCallback, DeleteCallback, EditCallback);
-    container.appendChild(TaskToRender.Render()); 
-  }    
+  Tasks.forEach(element => RenderTask(element));
+}
+
+function RenderTask(Task) {  
+  TaskToRender=new TaskComponent(Task.id, Task.title, Task.description, ClickCallback, DeleteCallback, EditCallback);
+  container.appendChild(TaskToRender.Render());
+}
+
+function reRenderTask(TargetIndex, Task) {
+  let newTask=new TaskComponent(Task.id, Task.title, Task.description, ClickCallback, DeleteCallback, EditCallback); 
+  newTask=newTask.Render(); 
+  const oldchild = container.children[TargetIndex];
+  container.replaceChild(newTask, oldchild);
 }
 
 function ClickCallback(task_id){
   //Выбранный элемент
-  let chosenElement=document.querySelector(`[data-id="task_${task_id}"]`);
-  //chosenElement.style.backgroundColor='red';
+  // let parent=document.querySelector(`[data-id="task_${task_id}"]`).parentNode;
+  // let chosenElement=document.querySelector(`[data-id="task_${task_id}"]`);
+  // let chosenElementIndex = Array.prototype.indexOf.call(parent.children, chosenElement);
+  // console.dir(chosenElementIndex);
 }
 
 function DeleteCallback(task_id){
   TaskArray=TaskArray.filter(tas=>tas.id!==task_id);
   localStorage.setItem('TaskArray', JSON.stringify(TaskArray));
   console.log(task_id+' deleted');
-  RenderAllTasks(TaskArray);
+  RenderAllTasks2(TaskArray);
 }
 
 function EditCallback(task_id){
-  //Выбранный элемент
+  //Выбранный таск
   let chosenElement=document.querySelector(`[data-id="task_${task_id}"]`);
 
-  //Поля инпута
-  let inputTitleEl=document.getElementById('input_field_title');
-  let inputDescriptionEl=document.getElementById('input_field_description'); 
-  let inputSave=document.getElementById('input_submit2');
-
+  //передаём значения из выбранного таска в форму
   inputTitleEl.value = chosenElement.querySelector(`[data-id="task_title"]`).innerText;
   inputDescriptionEl.value = chosenElement.querySelector(`[data-id="task_description"]`).innerText;
 
-  inputSave.onclick=()=>{
+  inputChange.onclick=()=>{
     let EditedTask = TaskArray.find(item => item.id == task_id);
-    let EditedIndex =TaskArray.indexOf(EditedTask)
-    console.log(EditedTask, TaskArray.indexOf(EditedTask));
+    let EditedIndex = TaskArray.indexOf(EditedTask);
+    // console.log('EditedTask',EditedTask);
+    
     EditedTask.title=inputTitleEl.value;
     EditedTask.description=inputDescriptionEl.value;
 
     TaskArray[EditedIndex]=EditedTask;
     localStorage.setItem('TaskArray', JSON.stringify(TaskArray));
-    RenderAllTasks(TaskArray);
+    //RenderAllTasks2(TaskArray);
+    reRenderTask(EditedIndex, EditedTask)
   }
 }
 
@@ -72,14 +81,20 @@ function EditCallback(task_id){
 
 
 //ВСЁ ЧТО ОТНОСИТСЯ К ФОРМЕ 
+let inputChange=document.getElementById('input_change');
 let inputTitleEl=document.getElementById('input_field_title');
 let inputDescriptionEl=document.getElementById('input_field_description');
-let inputSubmit=document.getElementById('input_submit');
+let inputAdd=document.getElementById('input_add');
 
-inputSubmit.onclick=()=>{
-  console.log('ДОБАВЛЯЕМ '+ inputTitleEl.value+' '+inputDescriptionEl.value);
-  TaskArray.push({id:Date.now(), title:inputTitleEl.value, description:inputDescriptionEl.value});
+inputAdd.onclick=()=>{
+  const TaskToPush={id:Date.now(), title:inputTitleEl.value, description:inputDescriptionEl.value}
+  TaskArray.push(TaskToPush);
   localStorage.setItem('TaskArray', JSON.stringify(TaskArray));
-  RenderAllTasks(TaskArray);
-  inputTitleEl.value=inputDescriptionEl.value='';
+  RenderTask(TaskToPush);
+  ClearForm();  
+}
+
+function ClearForm() {
+  inputTitleEl.value='';
+  inputDescriptionEl.value='';  
 }
