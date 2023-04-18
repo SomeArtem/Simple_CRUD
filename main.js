@@ -1,10 +1,12 @@
 import './style.css'
 import viteLogo from '/vite.svg'
 import TaskComponent from './src/taskComponent'
+import FormComponent from './src/FormComponent'
 
 //ВСЁ ЧТО ОТНОСИТСЯ К КОНТЕЙНЕРУ СПИСКА ДЕЛ
 const selector='listcontainer';
 const container = document.querySelector(`[data-id="${selector}"]`);
+const formcontainer=container.parentNode;
 
 let TaskArray=[];
 GetDataFromStorage();
@@ -59,46 +61,46 @@ function EditCallback(task_id){
   let chosenElement=document.querySelector(`[data-id="task_${task_id}"]`);
 
   //передаём значения из выбранного таска в форму
-  inputTitleEl.value = chosenElement.querySelector(`[data-id="task_title"]`).innerText;
-  inputDescriptionEl.value = chosenElement.querySelector(`[data-id="task_description"]`).innerText;
+  formcontainer.querySelector('#input_field_title').value = chosenElement.querySelector(`[data-id="task_title"]`).innerText;
+  formcontainer.querySelector('#input_field_description').value = chosenElement.querySelector(`[data-id="task_description"]`).innerText;
 
-  inputChange.onclick=()=>{
+  formcontainer.querySelector('#input_change').onclick=()=>{
     ConfirmationClick(task_id)
-  }
+  };
 }
 
 function ConfirmationClick(id) {
   let EditedTask = TaskArray.find(item => item.id == id);
-  let EditedIndex = TaskArray.indexOf(EditedTask);
-  // console.log('EditedTask',EditedTask, idd);
+  let EditedIndex = TaskArray.indexOf(EditedTask);  
   
-  EditedTask.title=inputTitleEl.value;
-  EditedTask.description=inputDescriptionEl.value;
+  EditedTask.title=NewForm.titleValue;
+  EditedTask.description=NewForm.descriptionValue;
 
   TaskArray[EditedIndex]=EditedTask;
   localStorage.setItem('TaskArray', JSON.stringify(TaskArray));
-  reRenderTask(EditedIndex, EditedTask);
-  inputChange.onclick=null;  
+  reRenderTask(EditedIndex, EditedTask);  
+  formcontainer.querySelector('#input_change').onclick=null;  
+  ClearForm();
 }
 
+//Новая форма, как компонент
+let NewForm=new FormComponent(FormAdd, FormChange);
 
-
-
-//ВСЁ ЧТО ОТНОСИТСЯ К ФОРМЕ 
-let inputChange=document.getElementById('input_change');
-let inputTitleEl=document.getElementById('input_field_title');
-let inputDescriptionEl=document.getElementById('input_field_description');
-let inputAdd=document.getElementById('input_add');
-
-inputAdd.onclick=()=>{
-  const TaskToPush={id:Date.now(), title:inputTitleEl.value, description:inputDescriptionEl.value}
+function FormAdd() {
+  const TaskToPush={id:Date.now(), title:formcontainer.querySelector('#input_field_title').value, description:formcontainer.querySelector('#input_field_description').value}
   TaskArray.push(TaskToPush);
   localStorage.setItem('TaskArray', JSON.stringify(TaskArray));
   RenderTask(TaskToPush);
-  ClearForm();  
+  ClearForm(); 
+}
+
+function FormChange() {
+  console.log('FormChange')
 }
 
 function ClearForm() {
-  inputTitleEl.value='';
-  inputDescriptionEl.value='';  
+  formcontainer.querySelector('#input_field_title').value='';
+  formcontainer.querySelector('#input_field_description').value='';  
 }
+
+formcontainer.prepend(NewForm.Render());
